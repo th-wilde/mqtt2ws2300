@@ -1,0 +1,20 @@
+{
+  "name": "mqtt2ws2300",
+  "version": "1.0.0",
+  "description": "A ws2300 to MQTT bridge",
+  "main": "mqtt2ws2300.js",
+  "scripts": {
+    "start": "DEBUG=mqtt2ws2300 node main.js",
+    "dev": "DEBUG=* node main.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "th.wilde",
+  "license": "MIT",
+  "private": true,
+  "dependencies": {
+    "@serialport/parser-inter-byte-timeout": ">=9.0.0",
+    "mqtt": "^4.1.0",
+    "serialport": ">=9.0.0",
+    "esm": ">=0.0.1"
+  }
+}

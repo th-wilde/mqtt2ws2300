@@ -1,0 +1,19 @@
+{
+    "mqtt": {
+        "server": "mqtt://192.168.x.x",
+        "options": {
+            "clientId": "mqtt2ws2300",
+            "username": "mqttUser",
+            "password": "mqttPass",
+            "clean": true
+        },
+        "publish": {
+            "retain": false
+        },
+        "prefix": "ws2300/"
+    },
+    "serial": {
+        "port" : "/dev/ttyUSB0"
+        //"port" : "/dev/ttyS0"
+    }
+}
