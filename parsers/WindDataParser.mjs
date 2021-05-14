@@ -18,13 +18,64 @@ class WindDataPaser extends WS2300Parser {
 
         //Nibbel 6 * 22.5 (22.5 weil 360/16 [Ein Nibbel = 4 Bit = 16 Zustände])
         //WinkelGrad von Norden aus im Uhrzeigersinn
-        var caldeg = (data[2] >> 4) * 22.5;
+		var direction = data[2] >> 4;
+        var caldeg = direction * 22.5;
 
         //Ungülige Wind-Daten erkennen
         if ((data[0] == 0x00) && ((data[1] != 0xFF) || (((data[2] & 0xF) != 0) && ((data[2] & 0xF) != 1)))) {
             this.lastWindSpeed = calcms;
             this.mqttPublish("WindSpeed", calcms.toFixed(1));
-            this.mqttPublish("WindDirection", caldeg.toFixed(1));
+            this.mqttPublish("WindDirectionDeg", caldeg.toFixed(1));
+			switch (direction){
+				case 0:
+					this.mqttPublish("WindDirectionStr", "N");
+					break;
+				case 1:
+					this.mqttPublish("WindDirectionStr", "NNE");
+					break;
+				case 2:
+					this.mqttPublish("WindDirectionStr", "NE");
+					break;
+				case 3:
+					this.mqttPublish("WindDirectionStr", "ENE");
+					break;
+				case 4:
+					this.mqttPublish("WindDirectionStr", "E");
+					break;
+				case 5:
+					this.mqttPublish("WindDirectionStr", "ESE");
+					break;
+				case 6:
+					this.mqttPublish("WindDirectionStr", "SE");
+					break;
+				case 7:
+					this.mqttPublish("WindDirectionStr", "SSE");
+					break;
+				case 8:
+					this.mqttPublish("WindDirectionStr", "S");
+					break;
+				case 9:
+					this.mqttPublish("WindDirectionStr", "SSW");
+					break;
+				case 10:
+					this.mqttPublish("WindDirectionStr", "SW");
+					break;
+				case 11:
+					this.mqttPublish("WindDirectionStr", "WSW");
+					break;
+				case 12:
+					this.mqttPublish("WindDirectionStr", "W");
+					break;
+				case 13:
+					this.mqttPublish("WindDirectionStr", "WNW");
+					break;
+				case 14:
+					this.mqttPublish("WindDirectionStr", "NW");
+					break;
+				case 15:
+					this.mqttPublish("WindDirectionStr", "NNW");
+					break;
+			}
         }else{
             this.lastWindSpeed = NaN;
         }

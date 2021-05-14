@@ -4,6 +4,7 @@ export const ADDRESS_WIDTH = 4;
 export const LENGTH_SIZE = 1;
 const RESET_SIZE = 1;
 const RESET_DATA = 0x02;
+const RESET_COMMAND = 0x06;
 
 /**
  * Emit data every number of bytes
@@ -25,8 +26,8 @@ class WS2300Parser extends Writable {
             throw new TypeError('"length" is not greater than 0')
         }
 
-        if (options.length > 3) {
-            throw new TypeError('"length" is greater than 3')
+        if (options.length > 7) {
+            throw new TypeError('"length" is greater than 7')
         }
 
         if (typeof options.address !== 'number') {
@@ -43,7 +44,6 @@ class WS2300Parser extends Writable {
 
         this.length = options.length
         this.address = options.address
-        this.position = 0
         this.buffer = Buffer.alloc(this.length + 1)
         this.bufferLevel = 0
         this.preamble = Buffer.alloc(RESET_SIZE + ADDRESS_WIDTH + LENGTH_SIZE)
@@ -54,6 +54,8 @@ class WS2300Parser extends Writable {
         }
         this.preamble[RESET_SIZE + ADDRESS_WIDTH] = readCSum(this.length)
         this.matchOffset = 0
+		
+		this.command = buildCommand(this)
     }
 
     write(chunk, encoding, cb) {
@@ -91,10 +93,6 @@ class WS2300Parser extends Writable {
         throw new Error('process must be implemented')
     }
 
-    publish(value) {
-        mqtt
-    }
-
 }
 
 var addressCSum = function (acknowledgement, sequenceNumber) {
@@ -113,6 +111,27 @@ var dataCSum = function (data) {
     }
 
     return checksum & 0xFF; //Das letzte Byte entspreicht der Prüfsumme
+}
+
+const encodeAddress = function (address, position) {
+
+	return 0x82 + (((address >> (4 * (3 - position))) & 0x0F) * 4) //Bits nach rechts verschieben und das Nibble (letzten 4 Bit) mit 0x82 (Befehl für die WS) addieren.
+}
+
+const encodeRead = function (numberOfBytes) {
+	return (0xC2 + numberOfBytes * 4); // Byteanzahl * 4 + Befehl (0xC2)
+}
+
+const buildCommand = function (parser) {
+	var command = []
+
+	command.push(Buffer.from([RESET_COMMAND]))
+	for (var i = 1; i <= ADDRESS_WIDTH; i++) {
+		command.push(Buffer.from([encodeAddress(parser.address, i - 1)]))
+	}
+	command.push(Buffer.from([encodeRead(parser.length)]))
+
+	return command
 }
 
 

@@ -5,13 +5,11 @@ import WS2300Parser from './WS2300Parser.mjs';
  * @extends WS2300Parser
  * @summary A transform stream that helps to receive data from a WS2300
  */
-class RainPaser extends WS2300Parser {
+class RainTotalParser extends WS2300Parser {
     constructor(mqttPublish) {
         super({ address: 0x4D2, length: 3 })
         this.mqttPublish = mqttPublish;
         this.lastCalcmm = NaN;
-        this.queue1h = new Queue(60 * 60 * 1000);
-        this.queue24h = new Queue(24 * 60 * 60 * 1000);
     }
 
     process(data) {
@@ -24,48 +22,16 @@ class RainPaser extends WS2300Parser {
         calcmm += (data[2] & 0xF) * 100; // Die ersten 4 Bit sind 10^2 mm
         calcmm += (data[2] >> 4) * 1000; // Die zweiten 4 Bit sind 10^3 mm
 
+		//Will be NaN if this.lastCalcmm is NaN
         var delta = calcmm - this.lastCalcmm;
         this.lastCalcmm = calcmm;
-
+		
+		this.mqttPublish("RainTotal", calcmm.toFixed(2));
+		
         if (!Number.isNaN(delta)) {
-            this.queue1h.add(delta);
-            this.queue24h.add(delta);
             this.mqttPublish("RainDelta", delta.toFixed(2));
-            this.mqttPublish("Rain1h", this.queue1h.total().toFixed(2));
-            this.mqttPublish("Rain24h", this.queue24h.total().toFixed(2));
         }
     }
 }
 
-class Queue {
-    constructor(ageLimit) {
-        this.ageLimit = ageLimit;
-        this.queue = []
-    }
-
-    add(data) {
-        this.queue.push(new QueueItem(data))
-        var expireDate = Date.now() - this.ageLimit;
-        while (this.queue[0].itemDate < expireDate) {
-            this.queue.shift()
-        }
-    }
-
-    total() {
-        var result = 0;
-        this.queue.forEach(element => {
-            result += element.data
-        });
-        return result
-    }
-
-}
-
-class QueueItem {
-    constructor(data) {
-        this.data = data
-        this.itemDate = new Date()
-    }
-}
-
-export default RainPaser
+export default RainTotalParser
