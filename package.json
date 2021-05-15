@@ -13,7 +13,7 @@
   "private": true,
   "dependencies": {
     "@serialport/parser-inter-byte-timeout": ">=9.0.0",
-    "mqtt": "^4.1.0",
+    "mqtt": ">=4.1.0",
     "serialport": ">=9.0.0",
     "esm": ">=0.0.1"
   }
