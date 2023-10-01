@@ -1,7 +1,7 @@
 import MqttClient from 'mqtt'
-import mqttConf from './config.json'
-import SerialPort from 'serialport'
-import InterByteTimeout from '@serialport/parser-inter-byte-timeout'
+import mqttConf from './config.json' assert { type: "json" };
+import { SerialPort } from 'serialport'
+import { InterByteTimeoutParser } from '@serialport/parser-inter-byte-timeout'
 import OutdoorTempParser from './parsers/OutdoorTempParser.mjs'
 import IndoorTempParser from './parsers/IndoorTempParser.mjs'
 import IndoorHumiParser from './parsers/IndoorHumiParser.mjs'
@@ -49,7 +49,8 @@ mqtt.on("connect",function(){
 	mqtt.publish("homeassistant/sensor/"+mqttConf.mqtt.prefix+"RecordTime/config", '{"name": "Weather Record Time", "state_topic": "'+mqttConf.mqtt.prefix+'RecordTime", "unique_id": "'+mqttConf.mqtt.prefix+'RecordTime" }', retainOption);
 })
 
-const port = new SerialPort(mqttConf.serial.port, {
+const port = new SerialPort({
+	path: mqttConf.serial.port, 
 	baudRate: 2400
 })
 
@@ -121,7 +122,7 @@ const byteByByteSender = function () {
 	}
 }
 
-const parser = port.pipe(new InterByteTimeout({ interval: 50 }))
+const parser = port.pipe(new InterByteTimeoutParser({ interval: 50 }))
 parser.on('data', function (data) { byteByByteSender(); })
 
 

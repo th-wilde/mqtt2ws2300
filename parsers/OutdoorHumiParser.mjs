@@ -18,8 +18,12 @@ class OutdoorHumiPaser extends WS2300Parser {
         calcHumi += (data[0] & 0xF); // Die ersten 4 Bit sind %
         calcHumi += (data[0] >> 4) * 10; // Die zweiten 4 Bit sind 10^1 %
 
-        this.lastHumi = calcHumi;
-        this.mqttPublish("OutdoorHumi", calcHumi.toFixed());
+	if(calcHumi <= 100) {
+	        this.lastHumi = calcHumi;
+		this.mqttPublish("OutdoorHumi", calcHumi.toFixed());
+	}else{
+		this.lastHumi = NaN;
+	}
     }
 }
 

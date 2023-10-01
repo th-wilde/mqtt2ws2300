@@ -4,7 +4,7 @@
   "description": "A ws2300 to MQTT bridge",
   "main": "mqtt2ws2300.js",
   "scripts": {
-    "start": "DEBUG=mqtt2ws2300 node main.js",
+    "start": "DEBUG=mqtt2ws2300 node mqtt2ws2300.mjs",
     "dev": "DEBUG=* node main.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -16,5 +16,6 @@
     "mqtt": ">=4.1.0",
     "serialport": ">=9.0.0",
     "esm": ">=0.0.1"
-  }
+  },
+  "type": "module"
 }
